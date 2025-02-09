@@ -20,6 +20,6 @@ public class UsuarioController : ControllerBase
     public IActionResult CreateUsuario([FromBody] Usuario usuario)
     {
         _createUsuarioCommand.Execute(usuario);
-        return Ok();
+        return StatusCode(201);
     }
 }

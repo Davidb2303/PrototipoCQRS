@@ -10,7 +10,7 @@ public class DatabaseHelper
         _connectionString = connectionString;
     }
 
-    public DataTable EjecutarConsulta(string query, MySqlParameter[] parametros = null)
+    public DataTable EjecutarConsulta(string query, MySqlParameter[]? parametros = null)
     {
         DataTable dataTable = new DataTable();
 
@@ -32,7 +32,7 @@ public class DatabaseHelper
         return dataTable;
     }
 
-    public int EjecutarComando(string query, MySqlParameter[] parametros = null)
+    public int EjecutarComando(string query, MySqlParameter[]? parametros = null)
     {
         using (var connection = new MySqlConnection(_connectionString))
         {
