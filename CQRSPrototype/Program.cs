@@ -5,6 +5,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddSingleton(new DatabaseHelper(connectionString));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<GetUsuariosQuery>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<CreateUsuarioCommand>();
 
 builder.Services.AddControllers();
 

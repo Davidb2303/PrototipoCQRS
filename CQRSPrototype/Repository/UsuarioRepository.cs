@@ -19,8 +19,8 @@ public class UsuarioRepository : IUsuarioRepository
             usuarios.Add(new Usuario
             {
                 Id = Convert.ToInt32(row["Id"]),
-                Nombre = row["Nombre"].ToString(),
-                Email = row["Email"].ToString()
+                Nombre = row["Nombre"].ToString()!,
+                Email = row["Email"].ToString()!
             });
         }
         return usuarios;
