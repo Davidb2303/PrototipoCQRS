@@ -1,13 +1,14 @@
+using CQRSPrototype.IUserQueryRepository;
 public class GetUsuariosQuery
 {
-    private readonly IUsuarioRepository _repository;
+    private readonly IUsuarioQueryRepository _repository;
 
-    public GetUsuariosQuery(IUsuarioRepository repository)
+    public GetUsuariosQuery(IUsuarioQueryRepository repository)
     {
         _repository = repository;
     }
 
-    public List<Usuario> Execute()
+    public List<UsuarioQueryModel> Execute()
     {
         return _repository.GetUsuarios();
     }

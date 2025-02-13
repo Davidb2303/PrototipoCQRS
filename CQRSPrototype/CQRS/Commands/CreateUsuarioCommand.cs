@@ -1,13 +1,15 @@
+using CQRSPrototype.IUserCommandRepository;
+
 public class CreateUsuarioCommand
 {
-    private readonly IUsuarioRepository _repository;
+    private readonly IUsuarioCommandRepository _repository;
 
-    public CreateUsuarioCommand(IUsuarioRepository repository)
+    public CreateUsuarioCommand(IUsuarioCommandRepository repository)
     {
         _repository = repository;
     }
 
-    public void Execute(Usuario usuario)
+    public void Execute(UsuarioCommandModel usuario)
     {
         _repository.CreateUsuario(usuario);
     }
