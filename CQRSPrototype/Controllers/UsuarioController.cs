@@ -1,34 +1,45 @@
+using CQRSPrototype.CQRS.Commands;
 using Microsoft.AspNetCore.Mvc;
+
+namespace CQRSPrototype.Controllers;
 
 [ApiController]
 [Route("api/usuarios")]
 public class UsuarioController : ControllerBase
 {
-    private readonly GetUsuariosQuery _getUsuariosQuery;
-    private readonly GetUsuarioByIdQuery _getUsuarioByIdQuery;
-    private readonly CreateUsuarioCommand _createUsuarioCommand;
-    private readonly DeleteUsuarioCommand _deleteUsuarioCommand;
+    private readonly GetUsuariosQueryHandler _getUsuariosQueryHandler;
+    private readonly GetUsuarioByIdQueryHandler _getUsuariosByIdQueryHandler;
+    private readonly CreateUsuarioCommandHandler _createUsuarioCommandHandler;
+    private readonly DeleteUsuarioCommandHandler _deleteUsuarioCommandHandler;
 
-    public UsuarioController(GetUsuariosQuery getUsuariosQuery, CreateUsuarioCommand createUsuarioCommand, DeleteUsuarioCommand deleteUsuarioCommand, GetUsuarioByIdQuery getUsuariosByIdQuery)
+    public UsuarioController(GetUsuariosQueryHandler getUsuariosQueryHandler, CreateUsuarioCommandHandler createUsuarioCommandHandler, DeleteUsuarioCommandHandler deleteUsuarioCommandHandler, GetUsuarioByIdQueryHandler getUsuariosByIdQueryHandler)
     {
-        _getUsuariosQuery = getUsuariosQuery;
-        _getUsuarioByIdQuery = getUsuariosByIdQuery;
-        _createUsuarioCommand = createUsuarioCommand;
-        _deleteUsuarioCommand = deleteUsuarioCommand;
+        _getUsuariosQueryHandler = getUsuariosQueryHandler;
+        _getUsuariosByIdQueryHandler = getUsuariosByIdQueryHandler;
+        _createUsuarioCommandHandler = createUsuarioCommandHandler;
+        _deleteUsuarioCommandHandler = deleteUsuarioCommandHandler;
 
 
     }
     [HttpGet]
     public IActionResult GetUsuarios()
     {
-        var usuarios = _getUsuariosQuery.Execute();
+        var query = new GetUsuariosQueryModel();
+        var usuarios = _getUsuariosQueryHandler.Handle(query);
+
+        if (usuarios == null || usuarios.Count == 0)
+        {
+            return NotFound(new { message = "No se encontraron usuarios" });
+        }
+
         return Ok(usuarios);
     }
-
+    
     [HttpGet("{id}")]
     public IActionResult GetUsuarioById(int id)
     {
-        var usuario = _getUsuarioByIdQuery.Execute(id);
+        var query = new GetUsuarioByIdQueryModel(id);
+        var usuario = _getUsuariosByIdQueryHandler.Handle(query);
         if (usuario == null)
             return NotFound(new { message = "Usuario no encontrado" });
 
@@ -40,19 +51,23 @@ public class UsuarioController : ControllerBase
     {
         if (usuario == null || string.IsNullOrWhiteSpace(usuario.Nombre) || string.IsNullOrWhiteSpace(usuario.Email))
             return BadRequest(new { message = "Nombre y Email son obligatorios" });
+        
+        var usuarioCommand = new CreateUsuarioCommandModel(usuario.Nombre, usuario.Email);
 
-        _createUsuarioCommand.Execute(usuario);
+        _createUsuarioCommandHandler.Handle(usuarioCommand);
         return StatusCode(201, new { message = "Usuario creado exitosamente" });
     }
 
     [HttpDelete("{id}")]
     public IActionResult DeleteUsuario(int id)
     {
-        var usuario = _getUsuarioByIdQuery.Execute(id);
-        if (usuario == null)
-            return NotFound(new { message = "Usuario no encontrado" });
+        if (id <= 0)
+        {
+            return BadRequest(new { message = "ID de usuario inválido" });
+        }
 
-        _deleteUsuarioCommand.Execute(id);
-        return Ok(new { message = "Usuario eliminado correctamente" });
+        var command = new DeleteUsuarioCommandModel(id);
+        _deleteUsuarioCommandHandler.Handle(command);
+        return Ok(new { message = "El usuario ha sido eliminado" });
     }
 }
